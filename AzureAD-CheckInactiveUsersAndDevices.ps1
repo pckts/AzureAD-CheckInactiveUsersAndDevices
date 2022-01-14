@@ -196,7 +196,7 @@ $MainMenu01 =
     write-host "|1. Check for inactive users         |" -BackGroundColor Black -NoNewLine; write-host "                                              |" -ForeGroundColor DarkGray -BackGroundColor Black
     write-host "|                                    |" -BackGroundColor Black -NoNewLine; write-host " Extracts audit data about Azure devices and  |" -ForeGroundColor DarkGray -BackGroundColor Black
     write-host "|------------------------------------|" -BackGroundColor Black -NoNewLine; write-host " users from the AzureAD to determine stale    |" -ForeGroundColor DarkGray -BackGroundColor Black
-    write-host "|2. Check for inactive devices       |" -BackGroundColor Black -NoNewLine; write-host " principals, and present them in an           |" -ForeGroundColor DarkGray -BackGroundColor Black
+    write-host "|2. Check for inactive devices       |" -BackGroundColor Black -NoNewLine; write-host " entities, and present them in an             |" -ForeGroundColor DarkGray -BackGroundColor Black
     write-host "|                                    |" -BackGroundColor Black -NoNewLine; write-host " user-friendly format                         |" -ForeGroundColor DarkGray -BackGroundColor Black
     write-host "+------------------------------------+" -BackGroundColor Black -NoNewLine; write-host "                                              |" -ForeGroundColor DarkGray -BackGroundColor Black
     write-host "|3. Check for both inactive          |" -BackGroundColor Black -NoNewLine; write-host "                                              |" -ForeGroundColor DarkGray -BackGroundColor Black
