@@ -1,5 +1,3 @@
-# Created by packet for https://www.parceu.com
-
 # Checks for inactive users and devices in AzureAD
 
 # Note: Requires AzureAD Premium license (P1 or P2) for AuditSignInLogs in Preview version of AzureAD
