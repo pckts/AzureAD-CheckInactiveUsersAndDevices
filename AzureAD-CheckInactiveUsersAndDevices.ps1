@@ -112,7 +112,7 @@ function Get-InactiveUsers
     write-host "Please wait..."
     # Indexes all logins (inherently 30 days or newer)
     $ActiveUsers = $null
-    $UserSignIns = Get-AzureADAuditSignInLogs | Select-Object UserPrincipalname
+    $UserSignIns = Get-AzureADAuditSignInLogs -all $true | Select-Object UserPrincipalname
     Foreach ($UserSignIn in $UserSignIns)
     {
         if (-not ($ActiveUsers -match $UserSignIn.UserPrincipalname))
