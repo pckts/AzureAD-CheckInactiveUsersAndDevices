@@ -34,15 +34,10 @@ $ProgressPreference = "SilentlyContinue"
 
 #uninstalls AzureAD if existing
 
-if (Get-Module -ListAvailable -Name AzureAD)
+if (-not(Get-Module -ListAvailable -Name MSGraph))
 {
     Get-AdminStatus
-    uninstall-module AzureAD
-}
-if (-not(Get-Module -ListAvailable -Name AzureADPreview))
-{
-    Get-AdminStatus
-    install-module AzureADPreview
+    install-module MSGraph
 }
 # Creates dependency folder if nonexistant
 $folderexist = test-path C:\Parceu
@@ -76,24 +71,29 @@ function Get-InactiveDevices
 
     # Gets all devices in AD and filters out any non-Windows devices. 
     # Selects the Displayname and ApproximateLastLogonTimeStamp objects
-    $Devices = Get-AzureADDevice -All $True | Select-Object DisplayName,DeviceOSType,ApproximateLastLogonTimeStamp
+    $Devices = Get-MgDevice | Select-Object DisplayName,OperatingSystem,ApproximateLastSignInDateTime
     
     # Checks each device timestamp
     Foreach ($Device in $Devices)
     {
         # If no timestamp exists the device will be considered unknown
-        if ($Device.ApproximateLastLogonTimeStamp -ne $null)
+        if ($Device.ApproximateLastSignInDateTime -ne $null)
         {
             # If timestamp exceeds 30 days, the device will be considered inactive
-            if (((get-date) - $Device.ApproximateLastLogonTimeStamp) -gt $30days) 
+            if (((get-date) - $Device.ApproximateLastSignInDateTime) -gt $30days) 
             {
-                $Device.Displayname+" | "+$Device.DeviceOSType+" | "+$Device.ApproximateLastLogonTimeStamp | Out-File -Encoding UTF8 -append C:\Parceu\2_InactiveDevices.txt
+                $Device.Displayname+" | "+$Device.OperatingSystem+" | "+$Device.ApproximateLastSignInDateTime | Out-File -Encoding UTF8 -append C:\Parceu\2_InactiveDevices.txt
+            }
+            # If timestamp is below 30 days, the device will be considered active
+            if (((get-date) - $Device.ApproximateLastSignInDateTime) -lt $30days) 
+            {
+                $Device.Displayname+" | "+$Device.OperatingSystem+" | "+$Device.ApproximateLastSignInDateTime | Out-File -Encoding UTF8 -append C:\Parceu\2_ActiveDevices.txt
             }
         }
-        # If timesrtamp can't be found, the device will be considered inactive
+        # If timestamp can't be found, the device will be considered unknown
         else
         {
-            $Device.Displayname+" | "+$Device.DeviceOSType+" | Unknown timestamp" | Out-File -Encoding UTF8 -append C:\Parceu\2_InactiveDevices.txt
+            $Device.Displayname+" | "+$Device.OperatingSystem+" | Unknown timestamp" | Out-File -Encoding UTF8 -append C:\Parceu\2_UnknownDevices.txt
         }
     }
 }
@@ -112,7 +112,7 @@ function Get-InactiveUsers
     write-host "Please wait..."
     # Indexes all logins (inherently 30 days or newer)
     $ActiveUsers = $null
-    $UserSignIns = Get-AzureADAuditSignInLogs -all $true | Select-Object UserPrincipalname
+    $UserSignIns = get-MgAuditlogSignIn | select-object UserPrincipalName 
     Foreach ($UserSignIn in $UserSignIns)
     {
         if (-not ($ActiveUsers -match $UserSignIn.UserPrincipalname))
@@ -122,7 +122,7 @@ function Get-InactiveUsers
         }
     }
     # Indexes all users in AAD
-    $AllUsers = Get-AzureADUser | Select-Object UserPrincipalname
+    $AllUsers = Get-MgUser | Select-Object UserPrincipalname
     
     # Exports both active and all users into temporary files for comparing
     $ActiveUsers | Out-File -Encoding UTF8 C:\Parceu\1_Temp_ActiveUsers.txt
@@ -148,7 +148,7 @@ function Get-InactiveUsers
     foreach ($InactiveUser in $InactiveUsers)
     {
         $InactiveUserUPN = $InactiveUser.InputObject
-        $InactiveUserStatus = Get-AzureADUser -Filter "userPrincipalName eq '$InactiveUserUPN'" | Select-Object AccountEnabled
+        $InactiveUserStatus = Get-MgUser -Filter "userPrincipalName eq '$InactiveUserUPN'" | Select-Object AccountEnabled
         if ($InactiveUserStatus.AccountEnabled -eq $True)
         {
             $IsAccountEnabled = "Enabled"
@@ -183,7 +183,7 @@ write-host "+-------------------------+" -BackGroundColor Black
 write-host "| Please login to AzureAD |" -BackGroundColor Black
 write-host "| with your admin account |" -BackGroundColor Black
 write-host "+-------------------------+" -BackGroundColor Black
-Connect-AzureAD
+Connect-MgGraph -Scopes "User.ReadWrite.All","Group.ReadWrite.All","Device.Read.All","AuditLog.Read.All","Directory.Read.All"
 
 #Shows the startup banner main menu.
 $MainMenu01 = 
