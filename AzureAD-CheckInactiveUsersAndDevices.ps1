@@ -1,6 +1,8 @@
 # Checks for inactive users and devices in AzureAD
 
-# Note: Requires AzureAD Premium license (P1 or P2) for AuditSignInLogs in Preview version of AzureAD
+# Note: This script previously required AzureAD Premium license (P1 or P2) for AuditSignInLogs in Preview version of AzureAD
+# However the script has since been converted to utilise the Microsoft.Graph module rather than AzureADPreview/AzureAD.
+# I don't know if Microsoft Graph REST API requires specific licensing.
 
 #========#
 # ^^^^^^ #
