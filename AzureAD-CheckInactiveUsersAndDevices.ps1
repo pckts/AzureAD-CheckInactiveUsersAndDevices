@@ -34,7 +34,7 @@ function Get-AdminStatus
 # QoL setting, prevents the shells progressbar from blocking text
 $ProgressPreference = "SilentlyContinue"
 
-#uninstalls AzureAD if existing
+#Installs MSGraph module if not installed
 
 if (-not(Get-Module -ListAvailable -Name MSGraph))
 {
